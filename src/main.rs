@@ -21,15 +21,15 @@ impl Position {
 
 struct Dvd {
     pos: Position,
-    logo: [String; 7],
+    logo: Vec<String>,
 }
 
 impl Dvd {
-    pub fn new(pos: Position, logo: [String; 7]) -> Dvd {
+    pub fn new(pos: Position, logo: Vec<String>) -> Dvd {
         Dvd {pos,logo}
     }
 
-    pub fn printer(&self) -> Result<()> {
+    pub fn print(&self) -> Result<()> {
         execute!(
             stdout(),
             Clear(ClearType::All),
@@ -49,9 +49,9 @@ impl Dvd {
 
     pub fn change_position(&mut self, x_loops: u8) -> Result<()> {
         for x_change in 0..x_loops {
-            let new_position = Position {x: self.pos.x + x_change as u16, y: self.pos.y};
-            self.printer()?;
+            let new_position = Position {x: x_change as u16, y: self.pos.y};
             self.pos.x = new_position.x;
+            self.print()?;
             wait_ms(500);
         }
         Ok(())
@@ -63,7 +63,7 @@ fn wait_ms(ms: u64) {
 }
      
  fn main() -> Result<()> {
-     let dvd_logo: [String; 7] = [
+     let dvd_logo: Vec<String> = vec![
              "⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⡀".to_string(),
              "⠀⢠⣿⣿⡿⠀⠀⠈⢹⣿⣿⡿⣿⣿⣇⠀⣠⣿⣿⠟⣽⣿⣿⠇⠀⠀⢹⣿⣿⣿".to_string(),
              "⠀⢸⣿⣿⡇⠀⢀⣠⣾⣿⡿⠃⢹⣿⣿⣶⣿⡿⠋⢰⣿⣿⡿⠀⠀⣠⣼⣿⣿⠏".to_string(),
@@ -72,14 +72,13 @@ fn wait_ms(ms: u64) {
              "⣠⣴⣶⣾⣿⣿⣻⡟⣻⣿⢻⣿⡟⣛⢻⣿⡟⣛⣿⡿⣛⣛⢻⣿⣿⣶⣦⣄⡀⠀".to_string(),
              "⠉⠛⠻⠿⠿⠿⠷⣼⣿⣿⣼⣿⣧⣭⣼⣿⣧⣭⣿⣿⣬⡭⠾⠿⠿⠿⠛⠉".to_string()
          ];
-     
      let position = Position {x: 0, y: 0};
 
-     let dvd = Dvd::new(position,dvd_logo);
+     let mut dvd = Dvd::new(position,dvd_logo);
  
-     dvd.printer().unwrap();
+     dvd.print().unwrap();
 
-    // change_position(10, &mut position, &dvd_logo)?;
+     dvd.change_position(5)?;
 
      Ok(())
  }
