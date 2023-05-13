@@ -1,5 +1,4 @@
-use rsdvd::Graphic;
-use rsdvd::ColorPalette;
+use rsdvd::*;
 use crossterm::style::Color::*;
 
 fn main() {

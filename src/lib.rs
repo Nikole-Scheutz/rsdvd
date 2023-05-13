@@ -27,7 +27,7 @@ impl Terminal {
 
 }
 
-pub struct Position {
+struct Position {
     x: i32,
     y: i32,
 }
