@@ -1,5 +1,6 @@
 use std::io::stdout;
 use std::{thread, time};
+use std::process::exit;
 
 use crossterm::{
     execute, Result,
@@ -64,6 +65,17 @@ impl Dvd {
         }
         Ok(())
     }
+
+    pub fn restore_cursor(&self) {
+        execute!(
+            stdout(),
+            Show,
+            MoveToNextLine(0),
+            ).unwrap_or_else(|err| {
+            println!("Problem restoring cursor: {err}");
+            exit(1);
+        });
+    }
 }
 
 fn wait_ms(ms: u64) {
@@ -84,13 +96,12 @@ fn main() -> Result<()> {
 
     let mut dvd = Dvd::new(position,dvd_logo);
 
-    dvd.change_position(5)?;
+    if let Err(e) = dvd.change_position(5) {
+        println!("Application error: {e}");
+        exit(1);
+    }
 
-    execute!(
-        stdout(),
-        Show,
-        MoveToNextLine(0),
-        )?;
+    dvd.restore_cursor();
 
-        Ok(())
+    Ok(())
 }
