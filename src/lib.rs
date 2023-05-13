@@ -1,4 +1,4 @@
-use::std::process;
+use std::process;
 
 use std::io::stdout;
 use std::{thread, time};
@@ -10,45 +10,59 @@ use crossterm::{
     terminal::{size,Clear,ClearType},
 };
 
-struct Position {
-    x: u16,
-    y: u16,
-}
-
-impl Position {
-    fn new(x: u16, y: u16) -> Position {
-        Position {x,y}
-    }
-
-    fn change(&mut self, x: i16, y: i16) {
-        self.x = self.x.wrapping_add_signed(x);
-        self.y = self.y.wrapping_add_signed(y);
-    }
-}
-
-pub struct Terminal {
-    size: (u16, u16),
+struct Terminal {
+    size: (i32, i32),
 }
 
 impl Terminal {
     pub fn new() -> Terminal {
-        Terminal {size: (size().unwrap())}
+        let size = size().unwrap();
+        let size = (size.0 as i32, size.1 as i32);
+        Terminal {size}
     }
 }
 
-pub struct BoundingBox {
-    top: u16,
-    left: u16,
-    bottom: u16,
-    right: u16,
+#[derive(PartialEq)]
+pub struct Position {
+    x: i32,
+    y: i32,
 }
 
+impl Position {
+    fn new(x: i32, y: i32) -> Position {
+        if x < 0 || y < 0 {
+            panic!("Negative values for position!");
+        }
+        Position {x,y}
+    }
 
+
+
+    pub fn set(&mut self, pos: (i32, i32)) {
+        self.x = pos.0;
+        self.y = pos.1;
+    }
+}
+
+struct BoundingBox {
+    top: i32,
+    left: i32,
+    bottom: i32,
+    right: i32,
+}
+
+#[derive(PartialEq)]
+struct Direction {
+    x: i32,
+    y: i32,
+}
 
 pub struct Graphic {
     graphic: Vec<String>,
     edges: BoundingBox,
     pos: Position,
+    direction: Direction,
+    terminal: Terminal,
 }
 
 impl Graphic {
@@ -56,19 +70,22 @@ impl Graphic {
         let mut longest_line_length = 0;
 
         for line in graphic.iter() {
-            let length = line.chars().count() as u16;
+            let length = line.chars().count() as i32;
             if length > longest_line_length {
                 longest_line_length = length;
             }
         }
         let top = 0;
         let left = 0;
-        let bottom = graphic.len() as u16;
+        let bottom = graphic.len() as i32;
         let right = longest_line_length;
         let edges = BoundingBox {top, left, bottom, right};
 
         let pos = Position::new(0,0);
-        Graphic {graphic, pos, edges}
+        
+        let direction = Direction {x: 1, y: 1};
+        let terminal = Terminal::new();
+        Graphic {graphic, pos, edges, direction, terminal}
     }
 
     pub fn print(&self) -> Result<()> {
@@ -76,7 +93,7 @@ impl Graphic {
             stdout(),
             Clear(ClearType::All),
             Hide,
-            MoveTo(self.pos.x,self.pos.y),
+            MoveTo(self.pos.x as u16,self.pos.y as u16),
             SavePosition,
             )?;
 
@@ -93,11 +110,17 @@ impl Graphic {
         Ok(())
     }
 
+    fn change(&mut self) {
+        self.pos.x += self.direction.x as i32;
+        self.pos.y += self.direction.y as i32; 
+    }
+
     pub fn move_and_print(&mut self, x_loops: u8) -> Result<()> {
         for _i in 0..x_loops {
-            self.pos.change(1,1);
+            self.check_bounce();
+            self.change();
             self.print()?;
-            wait_ms(500);
+            wait_ms(50);
         }
 
         self.restore_cursor();
@@ -113,6 +136,24 @@ impl Graphic {
             println!("Problem restoring cursor: {err}");
             process::exit(1);
         });
+    }
+
+    fn check_bounce(&self) {
+        if self.pos.x + self.edges.right >= self.terminal.size.0 {
+            panic!("right edge hit border!");
+        }
+
+        if self.pos.x + self.direction.x <= 0 {
+            panic!("left edge hit border!");
+        }
+
+        if self.pos.y + self.direction.y >= self.terminal.size.1 - self.edges.bottom {
+            panic!("bottom edge hit border!");
+        }
+
+        if self.pos.y + self.direction.y <= 0 {
+            panic!("top edge hit border!");
+        }
     }
 }
 

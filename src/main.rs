@@ -14,7 +14,9 @@ fn main() {
 
     let mut logo = Graphic::new(logo);
 
-    if let Err(e) = logo.move_and_print(5) {
+    // logo.pos.set(20,30);
+
+    if let Err(e) = logo.move_and_print(200) {
         println!("Application error: {e}");
         exit(1);
     }
