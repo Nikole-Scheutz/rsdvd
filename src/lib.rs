@@ -106,17 +106,34 @@ impl Graphic {
 
     pub fn print_infinitely(&mut self) -> Result<()> {
         loop {
-            self.print_loop()?;
+            self.print_loopable()?;
         }
     }
 
     pub fn print_x_times(&mut self, iterations: i32) -> Result<()> {
         for _i in  0..iterations {
-            self.print_loop()?;
+            self.print_loopable()?;
         }
 
         self.restore_cursor()?;
         Ok(())
+    }
+
+    pub fn print_looper(&mut self, iterations: Option<i32>) -> Result<()> {
+        match iterations {
+            Some(iterations) => {
+                for _i in 0..iterations {
+                    self.print_loopable()?;
+                }
+                self.restore_cursor()?;
+                Ok(())
+            },
+            _ => {
+                loop {
+                    self.print_loopable()?;
+                }
+            }
+        }
     }
 
     fn change(&mut self) {
@@ -124,7 +141,7 @@ impl Graphic {
         self.pos.y += self.direction.y as i32; 
     }
 
-    fn print_loop(&mut self) -> Result<()> {
+    fn print_loopable(&mut self) -> Result<()> {
         self.check_bounce();
         self.change();
         self.print()?;
@@ -136,10 +153,18 @@ impl Graphic {
     fn restore_cursor(&self) -> Result<()> {
         execute!(
             stdout(),
+            Clear(ClearType::All),
             Show,
             MoveToNextLine(0),
             )?;
 
+        execute!(
+            stdout(),
+            MoveTo(0,0),
+                SavePosition,
+            Clear(ClearType::All),
+                SavePosition,
+            )?;
             Ok(())
     }
 
