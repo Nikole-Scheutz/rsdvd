@@ -14,7 +14,7 @@ fn main() {
 
     let mut dvd = Graphic::new(logo);
 
-    if let Err(e) = dvd.print_looper(Some(40)) {
+    if let Err(e) = dvd.print_looper(0) {
         println!("Application error: {e}");
         exit(1);
     }
