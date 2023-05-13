@@ -36,34 +36,49 @@ impl Terminal {
     }
 }
 
-pub struct Dvd {
-    pos: Position,
-    logo: Vec<String>,
-    logo_size: (u16, u16),
+pub struct BoundingBox {
+    top: u16,
+    left: u16,
+    bottom: u16,
+    right: u16,
 }
 
-impl Dvd {
-    pub fn new(logo: Vec<String>) -> Dvd {
-    let pos = Position::new(0,0);
-    let logo_size: (u16, u16) = Dvd::get_logo_size(&logo);
-        Dvd {pos, logo, logo_size}
-    }
 
-    pub fn get_logo_size(logo: &Vec<String>) -> (u16, u16) {
-        let mut size = (0 as u16, 0 as u16);
+
+pub struct Graphic {
+    graphic: Vec<String>,
+    edges: BoundingBox,
+}
+
+impl Graphic {
+    pub fn new(graphic: Vec<String>) -> Graphic {
         let mut longest_line_length = 0;
 
-        size.1 = logo.len() as u16;
-
-        for line in logo {
+        for line in graphic.iter() {
             let length = line.chars().count() as u16;
             if length > longest_line_length {
                 longest_line_length = length;
             }
         }
-        size.0 = longest_line_length;
+        let top = 0;
+        let left = 0;
+        let bottom = graphic.len() as u16;
+        let right = longest_line_length;
+        let edges = BoundingBox {top, left, bottom, right};
 
-        size
+        Graphic {graphic, edges}
+    }
+}
+
+pub struct Dvd {
+    pos: Position,
+    logo: Graphic,
+}
+
+impl Dvd {
+    pub fn new(logo: Graphic) -> Dvd {
+    let pos = Position::new(0,0);
+        Dvd {pos, logo}
     }
 
     pub fn print(&self) -> Result<()> {
@@ -75,7 +90,7 @@ impl Dvd {
             SavePosition,
             )?;
 
-        for line in &self.logo {
+        for line in &self.logo.graphic {
             execute!(
                 stdout(),
                 SavePosition,
