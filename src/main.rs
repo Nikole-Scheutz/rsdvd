@@ -4,18 +4,23 @@ use std::{thread, time};
 use crossterm::{
     execute, Result,
     style::Print,
-    cursor::{MoveTo, SavePosition, MoveToNextLine},
+    cursor::{MoveTo, SavePosition, MoveDown, MoveToNextLine, RestorePosition, Hide, Show},
     terminal::{Clear,ClearType},
 };
 
- struct Position {
-     x: u16,
-     y: u16,
- }
+struct Position {
+    x: u16,
+    y: u16,
+}
 
 impl Position {
     fn new(x: u16, y: u16) -> Position {
         Position {x,y}
+    }
+
+    fn change(&mut self, x: i16, y: i16) {
+        self.x = self.x.wrapping_add_signed(x);
+        self.y = self.y.wrapping_add_signed(y);
     }
 }
 
@@ -33,7 +38,9 @@ impl Dvd {
         execute!(
             stdout(),
             Clear(ClearType::All),
+            Hide,
             MoveTo(self.pos.x,self.pos.y),
+            SavePosition,
             )?;
 
         for line in &self.logo {
@@ -41,16 +48,17 @@ impl Dvd {
                 stdout(),
                 SavePosition,
                 Print(line.to_string()),
-                MoveToNextLine(0),
+                RestorePosition,
+                MoveDown(0),
+                SavePosition,
                 )?;
         }
         Ok(())
     }
 
     pub fn change_position(&mut self, x_loops: u8) -> Result<()> {
-        for x_change in 0..x_loops {
-            let new_position = Position {x: x_change as u16, y: self.pos.y};
-            self.pos.x = new_position.x;
+        for _i in 0..x_loops {
+            self.pos.change(1,1);
             self.print()?;
             wait_ms(500);
         }
@@ -61,24 +69,28 @@ impl Dvd {
 fn wait_ms(ms: u64) {
     thread::sleep(time::Duration::from_millis(ms));
 }
-     
- fn main() -> Result<()> {
-     let dvd_logo: Vec<String> = vec![
-             "⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⡀".to_string(),
-             "⠀⢠⣿⣿⡿⠀⠀⠈⢹⣿⣿⡿⣿⣿⣇⠀⣠⣿⣿⠟⣽⣿⣿⠇⠀⠀⢹⣿⣿⣿".to_string(),
-             "⠀⢸⣿⣿⡇⠀⢀⣠⣾⣿⡿⠃⢹⣿⣿⣶⣿⡿⠋⢰⣿⣿⡿⠀⠀⣠⣼⣿⣿⠏".to_string(),
-             "⠀⣿⣿⣿⣿⣿⣿⠿⠟⠋⠁⠀⠀⢿⣿⣿⠏⠀⠀⢸⣿⣿⣿⣿⣿⡿⠟⠋⠁⠀".to_string(),
-             "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣸⣟⣁⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀".to_string(),
-             "⣠⣴⣶⣾⣿⣿⣻⡟⣻⣿⢻⣿⡟⣛⢻⣿⡟⣛⣿⡿⣛⣛⢻⣿⣿⣶⣦⣄⡀⠀".to_string(),
-             "⠉⠛⠻⠿⠿⠿⠷⣼⣿⣿⣼⣿⣧⣭⣼⣿⣧⣭⣿⣿⣬⡭⠾⠿⠿⠿⠛⠉".to_string()
-         ];
-     let position = Position {x: 0, y: 0};
 
-     let mut dvd = Dvd::new(position,dvd_logo);
- 
-     dvd.print().unwrap();
+fn main() -> Result<()> {
+    let dvd_logo: Vec<String> = vec![
+        "⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⡀".to_string(),
+        "⠀⢠⣿⣿⡿⠀⠀⠈⢹⣿⣿⡿⣿⣿⣇⠀⣠⣿⣿⠟⣽⣿⣿⠇⠀⠀⢹⣿⣿⣿".to_string(),
+        "⠀⢸⣿⣿⡇⠀⢀⣠⣾⣿⡿⠃⢹⣿⣿⣶⣿⡿⠋⢰⣿⣿⡿⠀⠀⣠⣼⣿⣿⠏".to_string(),
+        "⠀⣿⣿⣿⣿⣿⣿⠿⠟⠋⠁⠀⠀⢿⣿⣿⠏⠀⠀⢸⣿⣿⣿⣿⣿⡿⠟⠋⠁⠀".to_string(),
+        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣸⣟⣁⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀".to_string(),
+        "⣠⣴⣶⣾⣿⣿⣻⡟⣻⣿⢻⣿⡟⣛⢻⣿⡟⣛⣿⡿⣛⣛⢻⣿⣿⣶⣦⣄⡀⠀".to_string(),
+        "⠉⠛⠻⠿⠿⠿⠷⣼⣿⣿⣼⣿⣧⣭⣼⣿⣧⣭⣿⣿⣬⡭⠾⠿⠿⠿⠛⠉".to_string()
+    ];
+    let position = Position::new(0,0);
 
-     dvd.change_position(5)?;
+    let mut dvd = Dvd::new(position,dvd_logo);
 
-     Ok(())
- }
+    dvd.change_position(5)?;
+
+    execute!(
+        stdout(),
+        Show,
+        MoveToNextLine(0),
+        )?;
+
+        Ok(())
+}
