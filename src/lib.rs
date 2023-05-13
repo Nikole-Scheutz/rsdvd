@@ -20,7 +20,6 @@ impl Terminal {
     }
 }
 
-#[derive(PartialEq)]
 pub struct Position {
     x: i32,
     y: i32,
@@ -34,8 +33,6 @@ impl Position {
         Position {x,y}
     }
 
-
-
     pub fn set(&mut self, pos: (i32, i32)) {
         self.x = pos.0;
         self.y = pos.1;
@@ -47,7 +44,6 @@ struct BoundingBox {
     right: i32,
 }
 
-#[derive(PartialEq)]
 struct Direction {
     x: i32,
     y: i32,
@@ -76,32 +72,10 @@ impl Graphic {
         let edges = BoundingBox {bottom, right};
 
         let pos = Position::new(0,0);
-        
+
         let direction = Direction {x: 1, y: 1};
         let terminal = Terminal::new();
         Graphic {graphic, pos, edges, direction, terminal}
-    }
-
-    fn print(&self) -> Result<()> {
-        execute!(
-            stdout(),
-            Clear(ClearType::All),
-            Hide,
-            MoveTo(self.pos.x as u16,self.pos.y as u16),
-            SavePosition,
-            )?;
-
-        for line in &self.graphic {
-            execute!(
-                stdout(),
-                SavePosition,
-                Print(line.to_string()),
-                RestorePosition,
-                MoveDown(0),
-                SavePosition,
-                )?;
-        }
-        Ok(())
     }
 
     pub fn print_infinitely(&mut self) -> Result<()> {
@@ -136,6 +110,28 @@ impl Graphic {
         }
     }
 
+    fn print(&self) -> Result<()> {
+        execute!(
+            stdout(),
+            Clear(ClearType::All),
+            Hide,
+            MoveTo(self.pos.x as u16,self.pos.y as u16),
+            SavePosition,
+            )?;
+
+        for line in &self.graphic {
+            execute!(
+                stdout(),
+                SavePosition,
+                Print(line.to_string()),
+                RestorePosition,
+                MoveDown(0),
+                SavePosition,
+                )?;
+        }
+        Ok(())
+    }
+
     fn change(&mut self) {
         self.pos.x += self.direction.x as i32;
         self.pos.y += self.direction.y as i32; 
@@ -161,11 +157,11 @@ impl Graphic {
         execute!(
             stdout(),
             MoveTo(0,0),
-                SavePosition,
+            SavePosition,
             Clear(ClearType::All),
-                SavePosition,
+            SavePosition,
             )?;
-            Ok(())
+        Ok(())
     }
 
     fn check_bounce(&mut self) {
@@ -190,3 +186,4 @@ impl Graphic {
 pub fn wait_ms(ms: u64) {
     thread::sleep(time::Duration::from_millis(ms));
 }
+
