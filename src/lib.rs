@@ -65,8 +65,12 @@ pub struct ColorPalette {
 }
 
 impl ColorPalette {
-    pub fn new(input_colors: Vec<Color>) -> ColorPalette {
-        ColorPalette {color_palette: input_colors, current_color: 0}
+    pub fn new(input_colors: &[Color]) -> ColorPalette {
+        let mut colors: Vec<Color> = vec!();
+        for _i in 0..input_colors.len() {
+            colors.push(input_colors[_i]);
+        }
+        ColorPalette {color_palette: colors, current_color: 0}
     }
 
     pub fn next_color(&mut self) -> Color {

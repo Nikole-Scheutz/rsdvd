@@ -12,7 +12,7 @@ fn main() {
         "⠉⠛⠻⠿⠿⠿⠷⣼⣿⣿⣼⣿⣧⣭⣼⣿⣧⣭⣿⣿⣬⡭⠾⠿⠿⠿⠛⠉".to_string()
     ];
 
-    let colors = ColorPalette::new(vec![Cyan, DarkRed, Blue, Yellow, Red, Magenta]);
+    let colors = ColorPalette::new(&[Cyan, DarkRed, Blue, Yellow, Red, Magenta]);
 
     let mut dvd = Graphic::new(logo, colors);
 
