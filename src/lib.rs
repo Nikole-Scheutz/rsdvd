@@ -18,6 +18,13 @@ impl Terminal {
         let size = (size.0 as i32, size.1 as i32);
         Terminal {size}
     }
+
+    pub fn update_size(&mut self) {
+        let size = size().expect("Could not get size of terminal");
+        let size = (size.0 as i32, size.1 as i32);
+        self.size = size;
+    }
+
 }
 
 pub struct Position {
@@ -129,12 +136,14 @@ impl Graphic {
             0 => {
                 self.color_cursor()?;
                 loop {
+                    self.terminal.update_size();
                     self.print_loopable()?;
                 }
             },
             _ => {
                 self.color_cursor()?;
                 for _i in 0..iterations {
+                    self.terminal.update_size();
                     self.print_loopable()?;
                 }
                 self.restore_cursor()?;
