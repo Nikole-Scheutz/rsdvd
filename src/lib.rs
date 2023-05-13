@@ -78,21 +78,6 @@ impl Graphic {
         Graphic {graphic, pos, edges, direction, terminal}
     }
 
-    pub fn print_infinitely(&mut self) -> Result<()> {
-        loop {
-            self.print_loopable()?;
-        }
-    }
-
-    pub fn print_x_times(&mut self, iterations: i32) -> Result<()> {
-        for _i in  0..iterations {
-            self.print_loopable()?;
-        }
-
-        self.restore_cursor()?;
-        Ok(())
-    }
-
     pub fn print_looper(&mut self, iterations: Option<i32>) -> Result<()> {
         match iterations {
             Some(iterations) => {
