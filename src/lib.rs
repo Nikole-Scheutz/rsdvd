@@ -7,16 +7,16 @@ use crossterm::{
     execute, Result,
     style::Print,
     cursor::{MoveTo, SavePosition, MoveDown, MoveToNextLine, RestorePosition, Hide, Show},
-    terminal::{Clear,ClearType},
+    terminal::{size,Clear,ClearType},
 };
 
-pub struct Position {
+struct Position {
     x: u16,
     y: u16,
 }
 
 impl Position {
-    pub fn new(x: u16, y: u16) -> Position {
+    fn new(x: u16, y: u16) -> Position {
         Position {x,y}
     }
 
@@ -26,24 +26,44 @@ impl Position {
     }
 }
 
+pub struct Terminal {
+    size: (u16, u16),
+}
+
+impl Terminal {
+    pub fn new() -> Terminal {
+        Terminal {size: (size().unwrap())}
+    }
+}
+
 pub struct Dvd {
     pos: Position,
     logo: Vec<String>,
+    logo_size: (u16, u16),
 }
 
 impl Dvd {
-    pub fn new() -> Dvd {
-    let logo: Vec<String> = vec![
-        "⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⡀".to_string(),
-        "⠀⢠⣿⣿⡿⠀⠀⠈⢹⣿⣿⡿⣿⣿⣇⠀⣠⣿⣿⠟⣽⣿⣿⠇⠀⠀⢹⣿⣿⣿".to_string(),
-        "⠀⢸⣿⣿⡇⠀⢀⣠⣾⣿⡿⠃⢹⣿⣿⣶⣿⡿⠋⢰⣿⣿⡿⠀⠀⣠⣼⣿⣿⠏".to_string(),
-        "⠀⣿⣿⣿⣿⣿⣿⠿⠟⠋⠁⠀⠀⢿⣿⣿⠏⠀⠀⢸⣿⣿⣿⣿⣿⡿⠟⠋⠁⠀".to_string(),
-        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣸⣟⣁⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀".to_string(),
-        "⣠⣴⣶⣾⣿⣿⣻⡟⣻⣿⢻⣿⡟⣛⢻⣿⡟⣛⣿⡿⣛⣛⢻⣿⣿⣶⣦⣄⡀⠀".to_string(),
-        "⠉⠛⠻⠿⠿⠿⠷⣼⣿⣿⣼⣿⣧⣭⣼⣿⣧⣭⣿⣿⣬⡭⠾⠿⠿⠿⠛⠉".to_string()
-    ];
+    pub fn new(logo: Vec<String>) -> Dvd {
     let pos = Position::new(0,0);
-        Dvd {pos,logo}
+    let logo_size: (u16, u16) = Dvd::get_logo_size(&logo);
+        Dvd {pos, logo, logo_size}
+    }
+
+    pub fn get_logo_size(logo: &Vec<String>) -> (u16, u16) {
+        let mut size = (0 as u16, 0 as u16);
+        let mut longest_line_length = 0;
+
+        size.1 = logo.len() as u16;
+
+        for line in logo {
+            let length = line.chars().count() as u16;
+            if length > longest_line_length {
+                longest_line_length = length;
+            }
+        }
+        size.0 = longest_line_length;
+
+        size
     }
 
     pub fn print(&self) -> Result<()> {
