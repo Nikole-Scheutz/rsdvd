@@ -48,6 +48,7 @@ pub struct BoundingBox {
 pub struct Graphic {
     graphic: Vec<String>,
     edges: BoundingBox,
+    pos: Position,
 }
 
 impl Graphic {
@@ -66,19 +67,8 @@ impl Graphic {
         let right = longest_line_length;
         let edges = BoundingBox {top, left, bottom, right};
 
-        Graphic {graphic, edges}
-    }
-}
-
-pub struct Dvd {
-    pos: Position,
-    logo: Graphic,
-}
-
-impl Dvd {
-    pub fn new(logo: Graphic) -> Dvd {
-    let pos = Position::new(0,0);
-        Dvd {pos, logo}
+        let pos = Position::new(0,0);
+        Graphic {graphic, pos, edges}
     }
 
     pub fn print(&self) -> Result<()> {
@@ -90,7 +80,7 @@ impl Dvd {
             SavePosition,
             )?;
 
-        for line in &self.logo.graphic {
+        for line in &self.graphic {
             execute!(
                 stdout(),
                 SavePosition,

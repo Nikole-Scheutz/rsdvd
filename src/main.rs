@@ -1,5 +1,4 @@
 use std::process::exit;
-use rsdvd::Dvd;
 use rsdvd::Graphic;
 
 fn main() {
@@ -12,10 +11,10 @@ fn main() {
         "⣠⣴⣶⣾⣿⣿⣻⡟⣻⣿⢻⣿⡟⣛⢻⣿⡟⣛⣿⡿⣛⣛⢻⣿⣿⣶⣦⣄⡀⠀".to_string(),
         "⠉⠛⠻⠿⠿⠿⠷⣼⣿⣿⣼⣿⣧⣭⣼⣿⣧⣭⣿⣿⣬⡭⠾⠿⠿⠿⠛⠉".to_string()
     ];
-    let logo = Graphic::new(logo);
-    let mut dvd = Dvd::new(logo);
 
-    if let Err(e) = dvd.move_and_print(5) {
+    let mut logo = Graphic::new(logo);
+
+    if let Err(e) = logo.move_and_print(5) {
         println!("Application error: {e}");
         exit(1);
     }
