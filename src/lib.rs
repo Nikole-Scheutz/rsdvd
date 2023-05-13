@@ -3,7 +3,7 @@ use std::{thread, time};
 
 use crossterm::{
     execute, Result,
-    style::{Print, Color, SetForegroundColor},
+    style::{Print, Color, SetForegroundColor, ResetColor},
     cursor::{MoveTo, SavePosition, MoveDown, MoveToNextLine, RestorePosition, Hide, Show},
     terminal::{size, Clear, ClearType},
 };
@@ -175,24 +175,23 @@ impl Graphic {
             stdout(),
             SetForegroundColor(color),
             )?;
+
         Ok(())
     }
 
     fn restore_cursor(&self) -> Result<()> {
         execute!(
             stdout(),
-            Clear(ClearType::All),
-            Show,
-            MoveToNextLine(0),
             )?;
 
         execute!(
             stdout(),
-            MoveTo(0,0),
-            SavePosition,
+            Show,
+            MoveToNextLine(0),
             Clear(ClearType::All),
-            SavePosition,
+            ResetColor,
             )?;
+
         Ok(())
     }
 
