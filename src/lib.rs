@@ -1,5 +1,3 @@
-use std::process;
-
 use std::io::stdout;
 use std::{thread, time};
 
@@ -16,7 +14,7 @@ struct Terminal {
 
 impl Terminal {
     pub fn new() -> Terminal {
-        let size = size().unwrap();
+        let size = size().expect("FUCK");
         let size = (size.0 as i32, size.1 as i32);
         Terminal {size}
     }
@@ -84,7 +82,7 @@ impl Graphic {
         Graphic {graphic, pos, edges, direction, terminal}
     }
 
-    pub fn print(&self) -> Result<()> {
+    fn print(&self) -> Result<()> {
         execute!(
             stdout(),
             Clear(ClearType::All),
@@ -106,32 +104,43 @@ impl Graphic {
         Ok(())
     }
 
+    pub fn print_infinitely(&mut self) -> Result<()> {
+        loop {
+            self.print_loop()?;
+        }
+    }
+
+    pub fn print_x_times(&mut self, iterations: i32) -> Result<()> {
+        for _i in  0..iterations {
+            self.print_loop()?;
+        }
+
+        self.restore_cursor()?;
+        Ok(())
+    }
+
     fn change(&mut self) {
         self.pos.x += self.direction.x as i32;
         self.pos.y += self.direction.y as i32; 
     }
 
-    pub fn move_and_print(&mut self, x_loops: u32) -> Result<()> {
-        for _i in 0..x_loops {
-            self.check_bounce();
-            self.change();
-            self.print()?;
-            wait_ms(100);
-        }
+    fn print_loop(&mut self) -> Result<()> {
+        self.check_bounce();
+        self.change();
+        self.print()?;
+        wait_ms(100);
 
-        self.restore_cursor();
         Ok(())
     }
 
-    fn restore_cursor(&self) {
+    fn restore_cursor(&self) -> Result<()> {
         execute!(
             stdout(),
             Show,
             MoveToNextLine(0),
-            ).unwrap_or_else(|err| {
-            println!("Problem restoring cursor: {err}");
-            process::exit(1);
-        });
+            )?;
+
+            Ok(())
     }
 
     fn check_bounce(&mut self) {
@@ -139,7 +148,7 @@ impl Graphic {
             self.direction.x = -self.direction.x;
         }
 
-        if self.pos.x + self.direction.x < - 1 {
+        if self.pos.x + self.direction.x < 0 {
             self.direction.x = -self.direction.x;
         }
 
