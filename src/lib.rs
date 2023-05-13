@@ -59,45 +59,22 @@ struct Direction {
     y: i32,
 }
 
-pub struct ColorPalate {
-    color_palate: Vec<Color>,
+pub struct ColorPalette {
+    color_palette: Vec<Color>,
     current_color: u8,
 }
 
-impl ColorPalate {
-    pub fn new(input_colors: Vec<&str>) -> ColorPalate {
-        let mut color_palate: Vec<Color> = Vec::new();
-        for color in input_colors {
-            let col = match color {
-                "Black" => Color::Black,
-                "DarkGrey" => Color::DarkGrey, 
-                "Red" => Color::Red, 
-                "DarkRed" => Color::DarkRed,
-                "Green" => Color::Green,
-                "DarkGreen" => Color::DarkGreen,
-                "Yellow" => Color::Yellow,
-                "DarkYellow" => Color::DarkYellow,
-                "Blue" => Color::Blue,
-                "DarkBlue" => Color::DarkBlue,
-                "Magenta" => Color::Magenta,
-                "DarkMagenta" => Color::DarkMagenta,
-                "Cyan" => Color::Cyan,
-                "DarkCyan" => Color::DarkCyan,
-                "White" => Color::White,
-                "Grey" => Color::Grey,
-                _ => panic!("Invalid color!"),
-            };
-            color_palate.push(col);
-        }
-        ColorPalate {color_palate, current_color: 0}
+impl ColorPalette {
+    pub fn new(input_colors: Vec<Color>) -> ColorPalette {
+        ColorPalette {color_palette: input_colors, current_color: 0}
     }
 
     pub fn next_color(&mut self) -> Color {
-        if self.current_color == self.color_palate.len() as u8 - 1 {
+        if self.current_color == self.color_palette.len() as u8 - 1 {
             self.current_color = 0;
         } else { self.current_color += 1 as u8; };
 
-        self.color_palate[self.current_color as usize]
+        self.color_palette[self.current_color as usize]
     }
 }
 
@@ -105,13 +82,13 @@ pub struct Graphic {
     graphic: Vec<String>,
     edges: BoundingBox,
     pos: Position,
-    color_palate: ColorPalate,
+    color_palette: ColorPalette,
     direction: Direction,
     terminal: Terminal,
 }
 
 impl Graphic {
-    pub fn new(graphic: Vec<String>, color_palate: ColorPalate) -> Graphic {
+    pub fn new(graphic: Vec<String>, color_palette: ColorPalette) -> Graphic {
         let mut longest_line_length = 0;
 
         for line in graphic.iter() {
@@ -128,7 +105,7 @@ impl Graphic {
 
         let direction = Direction {x: 1, y: 1};
         let terminal = Terminal::new();
-        Graphic {graphic, pos, edges, direction, terminal, color_palate}
+        Graphic {graphic, pos, edges, direction, terminal, color_palette}
     }
 
     pub fn print_looper(&mut self, iterations: i32) -> Result<()> {
@@ -189,7 +166,7 @@ impl Graphic {
     }
 
     fn color_cursor(&mut self) -> Result<()> {
-        let color = self.color_palate.next_color();
+        let color = self.color_palette.next_color();
         execute!(
             stdout(),
             SetForegroundColor(color),
