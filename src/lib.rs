@@ -1,4 +1,5 @@
 use::std::process;
+
 use std::io::stdout;
 use std::{thread, time};
 
@@ -67,12 +68,14 @@ impl Dvd {
         Ok(())
     }
 
-    pub fn change_position(&mut self, x_loops: u8) -> Result<()> {
+    pub fn move_and_print(&mut self, x_loops: u8) -> Result<()> {
         for _i in 0..x_loops {
             self.pos.change(1,1);
             self.print()?;
             wait_ms(500);
         }
+
+        self.restore_cursor();
         Ok(())
     }
 

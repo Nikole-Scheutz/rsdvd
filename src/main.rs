@@ -5,7 +5,7 @@ use rsdvd::Dvd;
 fn main() {
     let mut dvd = Dvd::new();
 
-    if let Err(e) = dvd.change_position(5) {
+    if let Err(e) = dvd.move_and_print(5) {
         println!("Application error: {e}");
         exit(1);
     }
