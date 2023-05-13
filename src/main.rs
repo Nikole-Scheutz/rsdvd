@@ -82,7 +82,7 @@ fn wait_ms(ms: u64) {
     thread::sleep(time::Duration::from_millis(ms));
 }
 
-fn main() -> Result<()> {
+fn main() {
     let dvd_logo: Vec<String> = vec![
         "⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⡀".to_string(),
         "⠀⢠⣿⣿⡿⠀⠀⠈⢹⣿⣿⡿⣿⣿⣇⠀⣠⣿⣿⠟⣽⣿⣿⠇⠀⠀⢹⣿⣿⣿".to_string(),
@@ -102,6 +102,4 @@ fn main() -> Result<()> {
     }
 
     dvd.restore_cursor();
-
-    Ok(())
 }
