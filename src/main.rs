@@ -12,11 +12,9 @@ fn main() {
         "⠉⠛⠻⠿⠿⠿⠷⣼⣿⣿⣼⣿⣧⣭⣼⣿⣧⣭⣿⣿⣬⡭⠾⠿⠿⠿⠛⠉".to_string()
     ];
 
-    let mut logo = Graphic::new(logo);
+    let mut dvd = Graphic::new(logo);
 
-    // logo.pos.set(20,30);
-
-    if let Err(e) = logo.move_and_print(200) {
+    if let Err(e) = dvd.move_and_print(500) {
         println!("Application error: {e}");
         exit(1);
     }

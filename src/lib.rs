@@ -45,8 +45,6 @@ impl Position {
 }
 
 struct BoundingBox {
-    top: i32,
-    left: i32,
     bottom: i32,
     right: i32,
 }
@@ -75,11 +73,9 @@ impl Graphic {
                 longest_line_length = length;
             }
         }
-        let top = 0;
-        let left = 0;
         let bottom = graphic.len() as i32;
         let right = longest_line_length;
-        let edges = BoundingBox {top, left, bottom, right};
+        let edges = BoundingBox {bottom, right};
 
         let pos = Position::new(0,0);
         
@@ -115,12 +111,12 @@ impl Graphic {
         self.pos.y += self.direction.y as i32; 
     }
 
-    pub fn move_and_print(&mut self, x_loops: u8) -> Result<()> {
+    pub fn move_and_print(&mut self, x_loops: u32) -> Result<()> {
         for _i in 0..x_loops {
             self.check_bounce();
             self.change();
             self.print()?;
-            wait_ms(50);
+            wait_ms(100);
         }
 
         self.restore_cursor();
@@ -138,21 +134,21 @@ impl Graphic {
         });
     }
 
-    fn check_bounce(&self) {
-        if self.pos.x + self.edges.right >= self.terminal.size.0 {
-            panic!("right edge hit border!");
+    fn check_bounce(&mut self) {
+        if self.pos.x + self.edges.right > self.terminal.size.0 - 2 {
+            self.direction.x = -self.direction.x;
         }
 
-        if self.pos.x + self.direction.x <= 0 {
-            panic!("left edge hit border!");
+        if self.pos.x + self.direction.x < - 1 {
+            self.direction.x = -self.direction.x;
         }
 
-        if self.pos.y + self.direction.y >= self.terminal.size.1 - self.edges.bottom {
-            panic!("bottom edge hit border!");
+        if self.pos.y + self.direction.y > self.terminal.size.1 - self.edges.bottom {
+            self.direction.y = -self.direction.y;
         }
 
-        if self.pos.y + self.direction.y <= 0 {
-            panic!("top edge hit border!");
+        if self.pos.y + self.direction.y <= - 1 {
+            self.direction.y = -self.direction.y;
         }
     }
 }
