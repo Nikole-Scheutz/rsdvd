@@ -13,17 +13,17 @@ fn main() {
     ];
 
     let windows_compatible_logo: Vec<String> = vec![
- String::from(r#" _______      _______ "#),
- String::from(r#"|  __ \ \    / /  __ \ "#),
- String::from(r#"| |  | \ \  / /| |  | |"#),
- String::from(r#"| |  | |\ \/ / | |  | |"#),
- String::from(r#"| |__| | \  /  | |__| |"#),
- String::from(r#"|_____/   \/   |_____/ "#),
+        String::from(r#" _______      _______ "#),
+        String::from(r#"|  __ \ \    / /  __ \ "#),
+        String::from(r#"| |  | \ \  / /| |  | |"#),
+        String::from(r#"| |  | |\ \/ / | |  | |"#),
+        String::from(r#"| |__| | \  /  | |__| |"#),
+        String::from(r#"|_____/   \/   |_____/ "#),
     ];
 
     let colors = ColorPalette::new(&[Cyan, DarkRed, Blue, Yellow, Red, Magenta]);
 
-    let mut dvd = Graphic::new(windows_compatible_logo, colors);
+    let mut dvd = Graphic::new(logo, colors);
 
     if let Err(e) = dvd.print_looper(0) {
         println!("Application error: {e}");
